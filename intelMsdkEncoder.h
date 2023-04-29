@@ -2,6 +2,7 @@
 encode nv12 to JPEG / h264
  hardware (using intel GPU) (d3d11)
 */
+
 #pragma once
 #ifndef _ENCODER_H_
 #define	_ENCODER_H_
