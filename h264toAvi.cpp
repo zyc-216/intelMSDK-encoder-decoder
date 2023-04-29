@@ -108,7 +108,7 @@ addAVIHeader::addAVIHeader(unsigned width, unsigned height, unsigned bpp, const 
 
 addAVIHeader::~addAVIHeader()
 {
-	//不释放容器m_dstBuffer的内存
+	//虏禄脢脥路脜脠脻脝梅m_dstBuffer碌脛脛脷麓忙
 	delete[] offsets;
 }
 
@@ -239,7 +239,8 @@ void addAVIHeader::write_chars(const char* s, long lStartIndex)
 	}
 	else
 	{
-		for (int i = 0; i < count; ++i) {
+		for (int i = 0; i < count; ++i) 
+		{
 			m_dstBuffer.at(lStartIndex + i) = s[i];
 		}
 	}
@@ -249,7 +250,7 @@ void addAVIHeader::write_chars(const char* s, long lStartIndex)
 
 void addAVIHeader::write_chars_bin(const char* s, size_t len, long lStartIndex)
 {
-	//unsigned char 和 char?
+	//unsigned char 潞脥 char?
 	if (lStartIndex == m_dstBuffer.size()) {
 		m_dstBuffer.insert(m_dstBuffer.begin() + lStartIndex, (unsigned char*)&s[0], (unsigned char*)&s[len - 1] + 1);
 	}
