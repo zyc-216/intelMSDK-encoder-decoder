@@ -87,7 +87,6 @@ public:
 	int Finalize(long lStartIndex);
 	std::vector<unsigned char>& GetDstBuffer();
 	long GetNowIndex();
-
 private:
 	struct gwavi_header_t avi_header;
 	struct gwavi_stream_header_t stream_header_v;
