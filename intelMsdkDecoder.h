@@ -3,7 +3,7 @@
 #define _DECODER_H_
 
 
-#include "intelMsdkEncoder.h"
+#include "intelMsdkCommon.h"
 
 class DecoderParam 
 {
@@ -36,6 +36,7 @@ public:
 
 private:
 	bool DecodeBufferJpeg(std::vector<void*>& vecpSrcBuffer, std::vector<void*>& vecpDstBuffer, std::vector<int>& veciSrcLength);
+	bool DecodeBufferJpeg2(std::vector<void*>& vecpSrcBuffer, std::vector<void*>& vecpDstBuffer, std::vector<int>& veciSrcLength);
 	bool DecodeBufferH264(std::vector<void*>& vecpSrcBuffer, std::vector<void*>& vecpDstBuffer, std::vector<int>& veciSrcLength);
 	bool CreateDecoder(const DecoderParam& param);
 	bool CloseDecoder();
