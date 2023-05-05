@@ -1284,12 +1284,80 @@ bool intelMSDKdecoder::DecodeBufferJpeg(std::vector<void*>& vecpSrcBuffer, std::
 	if (uiDecFrameCount == iFrameIndex)
 		bRet = true;
 	//mfxGetTime(&tEnd);
-	//printf("decode函数内：%.3f\n",TimeDiffMsec(tEnd,tStart)/vecpSrcBuffer.size());
-	//printf("decode函数内：%.3f\n", TimeDiffMsec(tEnd, tStart1) / vecpSrcBuffer.size());
+	//printf("decode鍑芥暟鍐咃細%.3f\n",TimeDiffMsec(tEnd,tStart)/vecpSrcBuffer.size());
+	//printf("decode鍑芥暟鍐咃細%.3f\n", TimeDiffMsec(tEnd, tStart1) / vecpSrcBuffer.size());
 
 	return bRet;
 }
 
+bool intelMSDKdecoder::DecodeBufferJpeg2(std::vector<void*>& vecpSrcBuffer, std::vector<void*>& vecpDstBuffer, std::vector<int>& veciSrcLength)
+{
+	bool bRet = false;
+	mfxVideoParam* pDecParam = (mfxVideoParam*)m_pDecParams;
+	mfxFrameAllocator* pFrameAllocator = (mfxFrameAllocator*)(m_videoMemHandle.m_pFrameAllocator);
+	mfxStatus sts = MFX_ERR_NONE;
+	mfxBitstream bitStream;
+	memset(&bitStream, 0, sizeof(bitStream));
+	bitStream.MaxLength = veciSrcLength[0];
+	bitStream.Data = (unsigned char*)vecpSrcBuffer[0];
+	bitStream.DataLength = bitStream.MaxLength;
+
+	sts = MFXVideoDECODE_Init(*((MFXVideoSession*)m_pSession), pDecParam);
+	sts = MFXVideoDECODE_DecodeHeader(*((MFXVideoSession*)m_pSession), &bitStream, pDecParam);
+	MSDK_IGNORE_MFX_STS(sts, MFX_WRN_PARTIAL_ACCELERATION);
+	MSDK_CHECK_RESULT(sts, MFX_ERR_NONE, sts);
+
+	/* decoding */
+	mfxSyncPoint syncp;
+	mfxFrameSurface1* pmfxOutSurface = NULL;
+	int iSurfaceIndex = 0;
+	UINT uiDecFrameCount = 0;
+
+	//decoding loop(sync)
+	while (MFX_ERR_NONE <= sts || MFX_ERR_MORE_DATA == sts || MFX_ERR_MORE_SURFACE == sts)
+	{
+		if (MFX_WRN_DEVICE_BUSY == sts)
+			MSDK_SLEEP(1);  // Wait if device is busy, then repeat the same call to DecodeFrameAsync
+
+		if (MFX_ERR_MORE_SURFACE == sts || MFX_ERR_NONE == sts) {
+			iSurfaceIndex = GetFreeSurface(m_videoMemHandle.m_vecpSurfaces);
+			MSDK_CHECK_ERROR(MFX_ERR_NOT_FOUND, iSurfaceIndex, MFX_ERR_MEMORY_ALLOC);
+		}
+
+		sts = MFXVideoDECODE_DecodeFrameAsync(*((MFXVideoSession*)m_pSession),
+			&bitStream, (mfxFrameSurface1*)(m_videoMemHandle.m_vecpSurfaces[iSurfaceIndex]), &pmfxOutSurface, &syncp);
+
+		if (MFX_ERR_NONE < sts && syncp)
+			sts = MFX_ERR_NONE;
+
+		if (MFX_ERR_NONE == sts)
+			sts = ((MFXVideoSession*)m_pSession)->SyncOperation(syncp, WAIT_60000MS);
+
+		if (MFX_ERR_NONE == sts) {
+			sts = pFrameAllocator->Lock(pFrameAllocator->pthis, pmfxOutSurface->Data.MemId, &(pmfxOutSurface->Data));
+			MSDK_BREAK_ON_ERROR(sts);
+
+			VideoMemToSysMem(pmfxOutSurface, vecpDstBuffer[uiDecFrameCount]);
+
+			sts = pFrameAllocator->Unlock(pFrameAllocator->pthis, pmfxOutSurface->Data.MemId, &(pmfxOutSurface->Data));
+			MSDK_BREAK_ON_ERROR(sts);
+			++uiDecFrameCount;
+			if (uiDecFrameCount == vecpSrcBuffer.size())
+				break;
+			bitStream.Data = (unsigned char*)vecpSrcBuffer[uiDecFrameCount];
+			bitStream.DataOffset = 0;
+			bitStream.MaxLength = veciSrcLength[uiDecFrameCount];;
+			bitStream.DataLength = bitStream.MaxLength;
+
+		}
+	}
+
+
+	sts = MFXVideoDECODE_Close(*((MFXVideoSession*)m_pSession));
+
+	bRet = true;
+	return bRet;
+}
 //bool intelMSDKdecoder::DecodeBuffer2(std::vector<void*>& vecpSrcBuffer, std::vector<void*>& vecpDstBuffer, std::vector<int>& veciSrcLength)
 //{
 //	mfxTime tStart, tEnd;
@@ -1362,6 +1430,6 @@ bool intelMSDKdecoder::DecodeBufferJpeg(std::vector<void*>& vecpSrcBuffer, std::
 //		bRet = true;
 //
 //	mfxGetTime(&tEnd);
-//	printf("decode函数内：%.3f\n", TimeDiffMsec(tEnd, tStart) / iTotalFrameCounts);
+//	printf("decode鍑芥暟鍐咃細%.3f\n", TimeDiffMsec(tEnd, tStart) / iTotalFrameCounts);
 //	return bRet;
 //}
