@@ -10,30 +10,7 @@ encode nv12 to JPEG / h264
 
 #include <cstdio>
 #include <vector>
-#include "ParameterBase.h"
-
-typedef unsigned short USHORT;
-typedef unsigned int   UINT;
-typedef unsigned char  UCHAR;
-enum ChannelCount
-{
-	GRAY = 1,
-	COLOR = 3,
-};
-
-
-class ParamEncode :public CParameterBase
-{
-public:
-	USHORT		m_usImageSrcWidth;
-	USHORT		m_usImageSrcHeight;
-	UINT		m_uiSrcType;
-	UINT		m_uiDstType;
-	USHORT		m_usQuality;
-	UINT		m_uiFrameRate;
-	USHORT		m_usKbps;
-};
-
+#include "intelMsdkCommon.h"
 
 
 class EncoderParam
