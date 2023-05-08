@@ -1,6 +1,6 @@
 # intelMSDK-encoder-decoder
   Using intel media sdk and intel GPU(hardware),encode nv12 to Jpeg/H264 and decode Jpeg/H264 to nv12.
-
+  OS:WIndows
   Using the intel media sdk library, the video/picture encoding and decoding classes are encapsulated, and the programming language is c/c++. The encapsulated encoder and decoder need to instantiate the corresponding parameter classes before use. At the same time, the provided code encapsulates the class that reads data from the sqlite database and writes it into avi format, and the class that converts h264 frame data into avi video format. Both encoding and decoding are done in hardware, using Intel GPU.
   The class (h264ToAvi.h/h264ToAvi.cpp) that writes avi frame data into an avi format file refers to other classes, and the output method is changed to write to memory instead of to disk.
   Examples of use are not given now. But will be later.
