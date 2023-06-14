@@ -8,4 +8,5 @@
     其中，将avi帧数据写成avi格式文件的类h264ToAvi.h/h264ToAvi.cpp，参考了其他类，将输出方式改为写入内存而非写入磁盘。
     使用实例暂未给出。
     
-OS:Windows (d3d11)
+OS:Windows 
+Using d3d11
